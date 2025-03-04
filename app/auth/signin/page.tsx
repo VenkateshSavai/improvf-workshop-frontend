@@ -29,8 +29,6 @@ export default function SignIn() {
       await login(email, password);
       router.push("/");
     } catch (err: unknown) {
-      console.log("err: ", err);
-      console.log("err: ", err instanceof Error);
       setError(err instanceof Error ? err.message : "Failed to sign in");
     } finally {
       setLoading(false);

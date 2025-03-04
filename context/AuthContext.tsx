@@ -219,7 +219,6 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       }
 
       const data = await response.json();
-      console.log("data: ", data);
       setUser({
         name: data?.data?.name,
         email: data?.data?.email,
