@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useContext,
@@ -38,7 +38,10 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const router = useRouter();
+
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const OTP = "1234";
 
   // Check if user is logged in on initial load
   useEffect(() => {
@@ -50,7 +53,6 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       } catch (error) {
         console.error("Failed to parse user data:", error);
         localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
       }
     }
 
@@ -74,7 +76,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
 
       const data = await response.json();
 
-      // Store token in localStorage ( Not a secure way to store tokens )
+      //  Not a secure way to store token in production
       localStorage.setItem("accessToken", data.token);
 
       setIsAuthenticated(true);
@@ -107,14 +109,10 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
 
   const logout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
-    redirect("/auth/signin");
+    router.push("/auth/signin");
   };
-
-  // For demonstration purposes, we'll simulate these functions
-  // In a real application, these would call actual API endpoints
 
   const requestPasswordReset = async (email: string) => {
     try {
@@ -144,7 +142,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
         // For demo purposes, we'll accept "1234" as the OTP
-        if (otp === "1234") resolve();
+        if (otp === OTP) resolve();
         else reject(new Error("Invalid OTP"));
       }, 1000);
     });
@@ -206,7 +204,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     try {
       const token = localStorage.getItem("accessToken");
 
-      if (!token) redirect("/auth/signin");
+      if (!token) router.push("/auth/signin");
 
       const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
         headers: {
